@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLWordCount", "GLWordCount\GLWordCount.csproj", "{DF12BF00-D43C-4941-BD3B-6E0674B95A94}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF12BF00-D43C-4941-BD3B-6E0674B95A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF12BF00-D43C-4941-BD3B-6E0674B95A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF12BF00-D43C-4941-BD3B-6E0674B95A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF12BF00-D43C-4941-BD3B-6E0674B95A94}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CD6EBB32-24CE-4480-9E96-05513A52D937}
+	EndGlobalSection
+EndGlobal
