@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using GLWordCount.Abstraction;
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,20 +15,17 @@ namespace GLWordCount.Model
 {
     internal class MainModel
     {
-        public MainModel() 
-        {
+		public MainModel()
+		{
 			WordOccurances = new List<WordOccurance>();
-			OutputSortedWords = new List<Tuple<string, int>>();
 			InputSplitPattern = new[] { ' ', '\n', '\r' };
 		}
 
 		public char[] InputSplitPattern { get; set; }
-		public string InputFile { get; set; }
-		public string[]? InputWords { get; set; }
-		public List<Tuple<string, int>> OutputSortedWords { get; set; }
+		public string? InputFile { get; set; }
 		public List<WordOccurance> WordOccurances { get; set; }
 
-		private string GetInputFile()
+		private string GetInputFileName()
 		{
 			try
 			{
@@ -47,50 +45,21 @@ namespace GLWordCount.Model
 			return string.Empty;
 		}
 
-		private string[] SplitLine(string line, char[] pattern)
-		{
-			var words = line.Split(pattern, StringSplitOptions.RemoveEmptyEntries);
-			return words;
-		}
-
-		IEnumerable<string> GetWords(string filePath, char[] pattern, IProgress<double> progress)
-		{
-			var fileInfo = new FileInfo(filePath);
-			long fileLength = fileInfo.Length;
-
-			double smallest = 0;
-
-			using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-			using (var reader = new StreamReader(fileStream))
-			{
-				string? line;
-				while ((line = reader.ReadLine()) != null)
-				{
-					var words = SplitLine(line, pattern);
-					foreach (var word in words)
-					{
-						yield return word;
-					}
-
-					double percentComplete = (double)((double)fileStream.Position / fileLength) * 100;
-					var rounded = Math.Floor(percentComplete);
-					if(rounded > smallest)
-					{
-						progress.Report(rounded);
-						smallest = rounded;
-					}
-				}
-			}
-		}
-
-
+		/// <summary>
+		/// NEW!!!
+		/// </summary>
+		/// <param name="cancellationToken"></param>
+		/// <param name="progress"></param>
+		/// <exception cref="OperationCanceledException"></exception>
 		public void ProcessTextFile(CancellationToken cancellationToken, IProgress<double> progress)
 		{
 			var wordCountsDict = new Dictionary<string, int>();
-			InputFile = GetInputFile();
+			InputFile = GetInputFileName();
 			if (!string.IsNullOrEmpty(InputFile))
 			{
-				foreach (var word in GetWords(InputFile, InputSplitPattern, progress))
+				ILineSplitter lineSplitter = new LineSplitter(InputSplitPattern);
+				IWordProcessor wordProcessor = new WordProcessor(InputFile, progress, lineSplitter);
+				foreach (var word in wordProcessor.GetWords())
 				{
 					// Check if cancellation has been requested
 					// cancellationToken.ThrowIfCancellationRequested();
@@ -111,10 +80,11 @@ namespace GLWordCount.Model
 				}
 			}
 
-			// expected result
+			// expected result - sort it
 			var sortedWordCounts = wordCountsDict.ToList();
 			sortedWordCounts.Sort((x, y) => y.Value.CompareTo(x.Value));
 			WordOccurances = sortedWordCounts.Select(x => new WordOccurance(x.Key, x.Value)).ToList();
 		}
+
 	}
 }

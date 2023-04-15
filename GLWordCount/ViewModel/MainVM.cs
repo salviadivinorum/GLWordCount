@@ -157,6 +157,7 @@ namespace GLWordCount.ViewModel
 				// Run the ProcessTextFile method on a separate thread
 				await Task.Run(() =>
 				{
+					// model.ProcessTextFile(cancellationTokenSource.Token, progress);
 					model.ProcessTextFile(cancellationTokenSource.Token, progress);
 
 				});
