@@ -160,7 +160,9 @@ namespace GLWordCount.ViewModel
 			return true;
 		}
 
-
+		/// <summary>
+		/// Calculates the word occurances in a text file and updates the UI with the progress and results.
+		/// </summary>
 		private async void Calculate()
 		{
 			// create a new CancellationTokenSource
@@ -210,7 +212,6 @@ namespace GLWordCount.ViewModel
 		{
 			// Cancel the operation
 			_cancellationTokenSource?.Cancel();
-
 		}
 
 		/// <summary>

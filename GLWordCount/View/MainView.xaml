@@ -32,7 +32,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Button
@@ -106,9 +106,8 @@
         <DataGrid
             Grid.Row="3"
             Grid.Column="0"
-            Grid.ColumnSpan="3"
-            MaxHeight="300"
-            Margin="0,5,0,0"
+            Grid.ColumnSpan="4"
+            Margin="5"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             AutoGenerateColumns="False"
@@ -120,17 +119,16 @@
             ScrollViewer.VerticalScrollBarVisibility="Visible">
             <DataGrid.Columns>
                 <DataGridTextColumn
-                    Width="Auto"
+                    Width="*"
                     MinWidth="150"
                     Binding="{Binding Path=Word}"
                     Header="Word" />
                 <DataGridTextColumn
-                    Width="auto"
-                    MinWidth="200"
+                    Width="*"
+                    MinWidth="150"
                     Binding="{Binding Path=Occurance}"
                     Header="Occurrence" />
             </DataGrid.Columns>
         </DataGrid>
-
     </Grid>
 </Window>

@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -23,11 +24,12 @@ namespace GLWordCount.Model
 		public string? InputFile { get; set; }
 		public List<WordOccurance> WordOccurances { get; set; }
 
+
 		/// <summary>
-		/// Prompts the user to select a text file.
+		/// Opens a file dialog to select a text file and returns the file name.
 		/// </summary>
-		/// <returns>The file path of the text file.</returns>
-		private string GetInputFileName()
+		/// <returns>The file name of the selected text file, or null if no file was selected or an exception occurred.</returns>
+		private string? GetInputFileName()
 		{
 			try
 			{
@@ -40,11 +42,17 @@ namespace GLWordCount.Model
 					return openFileDialog.FileName;
 				}
 			}
+			catch (FileNotFoundException ex)
+			{
+				MessageBox.Show("File not found: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("An error occurred: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-			return string.Empty;
+
+			// No file was selected or an exception occurred
+			return null;
 		}
 
 		/// <summary>
@@ -61,7 +69,6 @@ namespace GLWordCount.Model
 				InputFile = inputFile;
 
 				// reusable (modular) file parser
-				// split the logic into small methods SRP single responsibility principle
 				ILineSplitter lineSplitter = new LineSplitter(InputSplitPattern);
 				IWordProcessor wordProcessor = new WordProcessor(InputFile, progress, lineSplitter);
 
@@ -81,7 +88,7 @@ namespace GLWordCount.Model
 		/// <returns>A dictionary of words and their occurances.</returns>
 		public Dictionary<string, int> ProcessWords(CancellationToken cancellationToken, IWordProcessor wordProcessor)
 		{
-			Dictionary<string, int> wordCountsDict = new Dictionary<string, int>();
+			var wordCountsDict = new Dictionary<string, int>();
 
 			// using deffered execution of collection
 			foreach (var word in wordProcessor.GetWords())
@@ -89,31 +96,27 @@ namespace GLWordCount.Model
 				// Check if cancellation has been requested
 				cancellationToken.ThrowIfCancellationRequested();
 
-				var w = word;
-				if (wordCountsDict.ContainsKey(w))
+				if (wordCountsDict.TryGetValue(word, out int count))
 				{
-					wordCountsDict[w]++;
+					wordCountsDict[word] = count + 1;
 				}
 				else
 				{
-					wordCountsDict[w] = 1;
+					wordCountsDict[word] = 1;
 				}
 			}
-
 			return wordCountsDict;
 		}
 
 		/// <summary>
-		/// Sorts a dictionary of words and their occurances.
+		/// Sorts a dictionary of word counts by descending order of count and then alphabetically by word.
 		/// </summary>
-		/// <param name="wordCountsDict">The dictionary of words and their occurances.</param>
-		/// <returns>A list of <see cref="WordOccurance"/> objects.</returns>
+		/// <param name="wordCountsDict">The dictionary of word counts.</param>
+		/// <returns>A list of WordOccurance objects sorted.</returns>
 		public List<WordOccurance> SortWordCounts(Dictionary<string, int> wordCountsDict)
 		{
-			var sortedWordCounts = wordCountsDict.ToList();
-			sortedWordCounts.Sort((x, y) => y.Value.CompareTo(x.Value));
+			var sortedWordCounts = wordCountsDict.OrderByDescending(x => x.Value).ThenBy(x => x.Key).ToList();
 			return sortedWordCounts.Select(x => new WordOccurance(x.Key, x.Value)).ToList();
 		}
-
 	}
 }
