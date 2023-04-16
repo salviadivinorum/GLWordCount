@@ -5,4 +5,4 @@ Source code:
 -------------
 MS Visual Studio 2022, C#, WPF
 
-![WP screen](https://user-images.githubusercontent.com/25845019/232294835-746f2ca8-081a-46cd-b768-3bf4a7ad7efc.png)
+![win prsc pbar](https://user-images.githubusercontent.com/25845019/232343331-3089fd7f-2352-4df4-98f0-442805531034.png)
