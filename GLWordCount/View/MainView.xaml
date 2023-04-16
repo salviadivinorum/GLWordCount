@@ -33,8 +33,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Button
@@ -46,7 +44,6 @@
             Margin="5,0,0,5"
             HorizontalAlignment="Left"
             Command="{Binding Path=CalculateCommand}"
-            CommandParameter="{Binding ElementName=progressLabel}"
             Content="Select file ..."
             IsEnabled="{Binding Path=SelectFileBtnEnabled}"
             Style="{StaticResource btnStyle}" />

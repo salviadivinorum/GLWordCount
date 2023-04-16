@@ -1,20 +1,18 @@
 ﻿using GLWordCount.Abstraction;
 using Microsoft.Win32;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 
 namespace GLWordCount.Model
 {
-    public class MainModel
-    {
+	/// <summary>
+	/// Main model (business logic)
+	/// </summary>
+	public class MainModel
+	{
 		public MainModel()
 		{
 			WordOccurances = new List<WordOccurance>();
@@ -25,6 +23,10 @@ namespace GLWordCount.Model
 		public string? InputFile { get; set; }
 		public List<WordOccurance> WordOccurances { get; set; }
 
+		/// <summary>
+		/// Prompts the user to select a text file.
+		/// </summary>
+		/// <returns>The file path of the text file.</returns>
 		private string GetInputFileName()
 		{
 			try
@@ -45,20 +47,21 @@ namespace GLWordCount.Model
 			return string.Empty;
 		}
 
+		/// <summary>
+		/// Processes a text file.
+		/// </summary>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <param name="progress">The progress.</param>
 		public void ProcessTextFile(CancellationToken cancellationToken, IProgress<double> progress)
 		{
-			WordOccurances = GetWordsOccurences(cancellationToken, progress);
-		}
-
-		private List<WordOccurance> GetWordsOccurences(CancellationToken cancellationToken, IProgress<double> progress)
-		{
-			List<WordOccurance> wordOccurances = new List<WordOccurance>();
-
 			// open file dialog window
-			InputFile = GetInputFileName();
-			if (!string.IsNullOrEmpty(InputFile))
+			var inputFile = GetInputFileName();
+			if (!string.IsNullOrEmpty(inputFile))
 			{
+				InputFile = inputFile;
+
 				// reusable (modular) file parser
+				// split the logic into small methods SRP single responsibility principle
 				ILineSplitter lineSplitter = new LineSplitter(InputSplitPattern);
 				IWordProcessor wordProcessor = new WordProcessor(InputFile, progress, lineSplitter);
 
@@ -66,11 +69,16 @@ namespace GLWordCount.Model
 				Dictionary<string, int> wordCountsDict = ProcessWords(cancellationToken, wordProcessor);
 
 				// sort the result and return it as a structure usable for UI
-				wordOccurances = SortWordCounts(wordCountsDict);
+				WordOccurances = SortWordCounts(wordCountsDict);
 			}
-			return wordOccurances;
 		}
 
+		/// <summary>
+		/// Processes the words in a text file.
+		/// </summary>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <param name="wordProcessor">The word processor.</param>
+		/// <returns>A dictionary of words and their occurances.</returns>
 		public Dictionary<string, int> ProcessWords(CancellationToken cancellationToken, IWordProcessor wordProcessor)
 		{
 			Dictionary<string, int> wordCountsDict = new Dictionary<string, int>();
@@ -95,6 +103,11 @@ namespace GLWordCount.Model
 			return wordCountsDict;
 		}
 
+		/// <summary>
+		/// Sorts a dictionary of words and their occurances.
+		/// </summary>
+		/// <param name="wordCountsDict">The dictionary of words and their occurances.</param>
+		/// <returns>A list of <see cref="WordOccurance"/> objects.</returns>
 		public List<WordOccurance> SortWordCounts(Dictionary<string, int> wordCountsDict)
 		{
 			var sortedWordCounts = wordCountsDict.ToList();

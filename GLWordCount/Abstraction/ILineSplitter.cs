@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GLWordCount.Abstraction
 {
-    public interface ILineSplitter
-    {
+	/// <summary>
+	/// Defines the contract for a line splitter.
+	/// </summary>
+	public interface ILineSplitter
+	{
+		/// <summary>
+		/// Splits the line.
+		/// </summary>
+		/// <param name="line">The line.</param>
+		/// <returns>A collection of words.</returns>
 		IEnumerable<string> SplitLine(string line);
 	}
 }

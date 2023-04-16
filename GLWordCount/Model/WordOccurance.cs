@@ -1,19 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GLWordCount.Model
+﻿namespace GLWordCount.Model
 {
-    public class WordOccurance
-    {
-        public string Word { get; set; }
-        public int Occurance { get; set; }
-        public WordOccurance(string word, int occurance) 
-        { 
-            Word = word;
-            Occurance = occurance;
-        }
-    }
+	/// <summary>
+	/// Structure to represent a word occurance.
+	/// </summary>
+	public class WordOccurance
+	{
+		/// <summary>
+		/// Gets or sets the word.
+		/// </summary>
+		public string Word { get; set; }
+
+		/// <summary>
+		/// Gets or sets the word occurance.
+		/// </summary>
+		public int Occurance { get; set; }
+
+
+		public WordOccurance(string word, int occurance)
+		{
+			Word = word;
+			Occurance = occurance;
+		}
+	}
 }

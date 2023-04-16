@@ -1,22 +1,17 @@
-﻿using GLWordCount.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Markup;
+using GLWordCount.Model;
 
 namespace GLWordCount.ViewModel
 {
+	/// <summary>
+	/// Main view model (intermediary between View and Model)
+	/// </summary>
 	internal class MainVM : INotifyPropertyChanged
 	{
 		private readonly MainModel _model;
@@ -36,14 +31,16 @@ namespace GLWordCount.ViewModel
 			SelectFileBtnEnabled = true;
 		}
 
-		
+		/// <summary>
+		/// Gets or sets the calculate command
+		/// </summary>
 		public ICommand CalculateCommand
 		{
 			get
 			{
 				if (_calculator == null)
 				{
-					_calculator = new Relaycommand(param => CanCalculate(param), param => Calculate(param));
+					_calculator = new Relaycommand(param => CanCalculate(), param => Calculate());
 				}
 				return _calculator;
 			}
@@ -54,13 +51,16 @@ namespace GLWordCount.ViewModel
 		}
 
 
+		/// <summary>
+		/// Gets or sets the cancel command
+		/// </summary>
 		public ICommand CancelCommand
 		{
 			get
 			{
 				if (_cancelor == null)
 				{
-					_cancelor = new Relaycommand(param => CanCancel(param), param => Cancel(param));
+					_cancelor = new Relaycommand(param => CanCancel(), param => Cancel());
 				}
 				return _cancelor;
 			}
@@ -70,7 +70,10 @@ namespace GLWordCount.ViewModel
 			}
 		}
 
-		
+		/// <summary>
+		/// Gets or sets a value indicating whether the select file button is enabled.
+		/// </summary>
+		/// <value><c>true</c> if select file button is enabled; otherwise, <c>false</c>.</value>
 		public bool SelectFileBtnEnabled
 		{
 			get
@@ -87,7 +90,9 @@ namespace GLWordCount.ViewModel
 			}
 		}
 
-		
+		/// <summary>
+		/// Gets or sets the output sorted words.
+		/// </summary>
 		public List<WordOccurance>? OutputSortedWords
 		{
 			get
@@ -104,7 +109,9 @@ namespace GLWordCount.ViewModel
 			}
 		}
 
-		
+		/// <summary>
+		/// Gets or sets the progress level as string
+		/// </summary>
 		public string? ProgressLevel
 		{
 			get => _progressLevel;
@@ -118,7 +125,9 @@ namespace GLWordCount.ViewModel
 			}
 		}
 
-		
+		/// <summary>
+		/// Gets or sets the progress level as double
+		/// </summary>
 		public double? ProgressValue
 		{
 			get { return _progressValue; }
@@ -130,6 +139,9 @@ namespace GLWordCount.ViewModel
 		}
 
 
+		/// <summary>
+		/// Gets or sets the file path of Input file
+		/// </summary>
 		public string? InputFile
 		{
 			get => _inputFile;
@@ -143,14 +155,13 @@ namespace GLWordCount.ViewModel
 			}
 		}
 
-		private bool CanCalculate(object param)
+		private bool CanCalculate()
 		{
-			// some logic
 			return true;
 		}
 
 
-		private async void Calculate(object param)
+		private async void Calculate()
 		{
 			// create a new CancellationTokenSource
 			_cancellationTokenSource = new CancellationTokenSource();
@@ -164,15 +175,14 @@ namespace GLWordCount.ViewModel
 			};
 
 			SelectFileBtnEnabled = false;
+			var inputFileName_current = _model.InputFile;
 
 			try
 			{
 				// Run the ProcessTextFile method on a separate thread
-				await Task.Run(() =>
-				{
-					_model.ProcessTextFile(_cancellationTokenSource.Token, progress);
-				});
+				await Task.Run(() => _model.ProcessTextFile(_cancellationTokenSource.Token, progress));
 
+				// inform view
 				InputFile = _model.InputFile;
 				OutputSortedWords = _model.WordOccurances;
 
@@ -180,6 +190,7 @@ namespace GLWordCount.ViewModel
 			catch (OperationCanceledException)
 			{
 				// The operation was cancelled
+				InputFile = inputFileName_current;
 				ProgressLevel = "Cancelled";
 			}
 			finally
@@ -190,13 +201,12 @@ namespace GLWordCount.ViewModel
 		}
 
 
-		private bool CanCancel(object param)
+		private bool CanCancel()
 		{
-			return _cancellationTokenSource == null ? false : true;
-			// return true;
+			return _cancellationTokenSource != null;
 		}
 
-		private void Cancel(object param)
+		private void Cancel()
 		{
 			// Cancel the operation
 			_cancellationTokenSource?.Cancel();

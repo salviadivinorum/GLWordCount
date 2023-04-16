@@ -33,7 +33,7 @@ namespace WordProcessorTests
 			// Delete the test file
 			File.Delete(_testFilePath);
 		}
-
+	
 		[Test]
 		public void GetWords_ReturnsWordsInFile()
 		{

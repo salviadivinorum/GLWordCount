@@ -4,6 +4,9 @@ using System.IO;
 
 namespace GLWordCount.Abstraction
 {
+	/// <summary>
+	/// Word processor implementation
+	/// </summary>
 	public class WordProcessor : IWordProcessor
 	{
 		private readonly string _filePath;
