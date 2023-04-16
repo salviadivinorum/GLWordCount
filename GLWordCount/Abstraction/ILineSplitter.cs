@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GLWordCount.Abstraction
 {
-    internal interface ILineSplitter
+    public interface ILineSplitter
     {
 		IEnumerable<string> SplitLine(string line);
 	}

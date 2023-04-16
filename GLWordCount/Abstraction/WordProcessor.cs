@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GLWordCount.Abstraction
 {
-	internal class WordProcessor : IWordProcessor
+	public class WordProcessor : IWordProcessor
 	{
 		private readonly string _filePath;
 		private readonly IProgress<double> _progress;
@@ -36,9 +33,16 @@ namespace GLWordCount.Abstraction
 				string? line;
 				while ((line = reader.ReadLine()) != null)
 				{
+					if (string.IsNullOrEmpty(line))
+					{
+						// do not process empty lines
+						continue;
+					}
+
 					var words = _lineSplitter.SplitLine(line);
 					foreach (var word in words)
 					{
+						// perform the lazy (deffered) evaluation in time of need
 						yield return word;
 					}
 
@@ -46,6 +50,7 @@ namespace GLWordCount.Abstraction
 					var rounded = Math.Floor(percentComplete);
 					if (rounded > smallest)
 					{
+						// report only 1% increments to UI
 						_progress?.Report(rounded);
 						smallest = rounded;
 					}

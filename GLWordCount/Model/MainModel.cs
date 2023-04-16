@@ -13,7 +13,7 @@ using System.Windows.Documents;
 
 namespace GLWordCount.Model
 {
-    internal class MainModel
+    public class MainModel
     {
 		public MainModel()
 		{
@@ -45,45 +45,61 @@ namespace GLWordCount.Model
 			return string.Empty;
 		}
 
-		/// <summary>
-		/// NEW!!!
-		/// </summary>
-		/// <param name="cancellationToken"></param>
-		/// <param name="progress"></param>
-		/// <exception cref="OperationCanceledException"></exception>
 		public void ProcessTextFile(CancellationToken cancellationToken, IProgress<double> progress)
 		{
-			var wordCountsDict = new Dictionary<string, int>();
+			WordOccurances = GetWordsOccurences(cancellationToken, progress);
+		}
+
+		private List<WordOccurance> GetWordsOccurences(CancellationToken cancellationToken, IProgress<double> progress)
+		{
+			List<WordOccurance> wordOccurances = new List<WordOccurance>();
+
+			// open file dialog window
 			InputFile = GetInputFileName();
 			if (!string.IsNullOrEmpty(InputFile))
 			{
+				// reusable (modular) file parser
 				ILineSplitter lineSplitter = new LineSplitter(InputSplitPattern);
 				IWordProcessor wordProcessor = new WordProcessor(InputFile, progress, lineSplitter);
-				foreach (var word in wordProcessor.GetWords())
-				{
-					// Check if cancellation has been requested
-					// cancellationToken.ThrowIfCancellationRequested();
-					if (cancellationToken.IsCancellationRequested)
-					{
-						throw new OperationCanceledException(cancellationToken);
-					}
 
-					var w = word;
-					if (wordCountsDict.ContainsKey(w))
-					{
-						wordCountsDict[w]++;
-					}
-					else
-					{
-						wordCountsDict[w] = 1;
-					}
+				// fill in helper dictionary
+				Dictionary<string, int> wordCountsDict = ProcessWords(cancellationToken, wordProcessor);
+
+				// sort the result and return it as a structure usable for UI
+				wordOccurances = SortWordCounts(wordCountsDict);
+			}
+			return wordOccurances;
+		}
+
+		public Dictionary<string, int> ProcessWords(CancellationToken cancellationToken, IWordProcessor wordProcessor)
+		{
+			Dictionary<string, int> wordCountsDict = new Dictionary<string, int>();
+
+			// using deffered execution of collection
+			foreach (var word in wordProcessor.GetWords())
+			{
+				// Check if cancellation has been requested
+				cancellationToken.ThrowIfCancellationRequested();
+
+				var w = word;
+				if (wordCountsDict.ContainsKey(w))
+				{
+					wordCountsDict[w]++;
+				}
+				else
+				{
+					wordCountsDict[w] = 1;
 				}
 			}
 
-			// expected result - sort it
+			return wordCountsDict;
+		}
+
+		public List<WordOccurance> SortWordCounts(Dictionary<string, int> wordCountsDict)
+		{
 			var sortedWordCounts = wordCountsDict.ToList();
 			sortedWordCounts.Sort((x, y) => y.Value.CompareTo(x.Value));
-			WordOccurances = sortedWordCounts.Select(x => new WordOccurance(x.Key, x.Value)).ToList();
+			return sortedWordCounts.Select(x => new WordOccurance(x.Key, x.Value)).ToList();
 		}
 
 	}

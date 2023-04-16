@@ -19,18 +19,19 @@ namespace GLWordCount.ViewModel
 {
 	internal class MainVM : INotifyPropertyChanged
 	{
-		private MainModel model;
-		private ICommand updater;
-		private ICommand canceler;
-		private string inputFile;
-		private bool selectFileBtnEnabled;
-		private List<WordOccurance> outputSortedWords;
-		private string progressLevel;
-		private CancellationTokenSource cancellationTokenSource;
+		private readonly MainModel _model;
+		private ICommand? _calculator;
+		private ICommand? _cancelor;
+		private string? _inputFile;
+		private bool _selectFileBtnEnabled;
+		private List<WordOccurance>? _outputSortedWords;
+		private string? _progressLevel;
+		private double? _progressValue;
+		private CancellationTokenSource? _cancellationTokenSource;
 
 		public MainVM()
 		{
-			model = new MainModel();
+			_model = new MainModel();
 			ProgressLevel = "0%";
 			SelectFileBtnEnabled = true;
 		}
@@ -40,15 +41,15 @@ namespace GLWordCount.ViewModel
 		{
 			get
 			{
-				if (updater == null)
+				if (_calculator == null)
 				{
-					updater = new Relaycommand(param => CanCalculate(param), param => Calculate(param));
+					_calculator = new Relaycommand(param => CanCalculate(param), param => Calculate(param));
 				}
-				return updater;
+				return _calculator;
 			}
 			set
 			{
-				updater = value;
+				_calculator = value;
 			}
 		}
 
@@ -57,15 +58,15 @@ namespace GLWordCount.ViewModel
 		{
 			get
 			{
-				if (canceler == null)
+				if (_cancelor == null)
 				{
-					canceler = new Relaycommand(param => CanCancel(param), param => Cancel(param));
+					_cancelor = new Relaycommand(param => CanCancel(param), param => Cancel(param));
 				}
-				return canceler;
+				return _cancelor;
 			}
 			set
 			{
-				canceler = value;
+				_cancelor = value;
 			}
 		}
 
@@ -74,58 +75,69 @@ namespace GLWordCount.ViewModel
 		{
 			get
 			{
-				return selectFileBtnEnabled;
+				return _selectFileBtnEnabled;
 			}
 			set
 			{
-				if (selectFileBtnEnabled != value)
+				if (_selectFileBtnEnabled != value)
 				{
-					selectFileBtnEnabled = value;
+					_selectFileBtnEnabled = value;
 					OnPropertyChanged();
 				}
 			}
 		}
 
 		
-		public List<WordOccurance> OutputSortedWords
+		public List<WordOccurance>? OutputSortedWords
 		{
 			get
 			{
-				return outputSortedWords;
+				return _outputSortedWords;
 			}
 			set
 			{
-				if (outputSortedWords != value)
+				if (_outputSortedWords != value)
 				{
-					outputSortedWords = value;
+					_outputSortedWords = value;
 					OnPropertyChanged();
 				}
 			}
 		}
 
 		
-		public string ProgressLevel
+		public string? ProgressLevel
 		{
-			get => progressLevel;
+			get => _progressLevel;
 			set
 			{
-				if (progressLevel != value)
+				if (_progressLevel != value)
 				{
-					progressLevel = value;
+					_progressLevel = value;
 					OnPropertyChanged();
 				}
 			}
 		}
 
 		
-		public string InputFile
+		public double? ProgressValue
 		{
-			get => inputFile;
+			get { return _progressValue; }
 			set
 			{
-				if (inputFile != value)
+				_progressValue = value;
+				OnPropertyChanged(nameof(ProgressValue));
+			}
+		}
+
+
+		public string? InputFile
+		{
+			get => _inputFile;
+			set
+			{
+				if (_inputFile != value)
 				{
-					inputFile = value;
+					_inputFile = value;
 					OnPropertyChanged();
 				}
 			}
@@ -140,14 +152,15 @@ namespace GLWordCount.ViewModel
 
 		private async void Calculate(object param)
 		{
-			// Create a new CancellationTokenSource
-			cancellationTokenSource = new CancellationTokenSource();
+			// create a new CancellationTokenSource
+			_cancellationTokenSource = new CancellationTokenSource();
 
 			var progress = new Progress<double>();
 			progress.ProgressChanged += (sender, value) =>
 			{
-				// Update the UI control label with the progress value
+				// Update the UI controls with the progress value
 				ProgressLevel = $"{value}%";
+				ProgressValue = value;
 			};
 
 			SelectFileBtnEnabled = false;
@@ -157,39 +170,36 @@ namespace GLWordCount.ViewModel
 				// Run the ProcessTextFile method on a separate thread
 				await Task.Run(() =>
 				{
-					// model.ProcessTextFile(cancellationTokenSource.Token, progress);
-					model.ProcessTextFile(cancellationTokenSource.Token, progress);
-
+					_model.ProcessTextFile(_cancellationTokenSource.Token, progress);
 				});
 
-				InputFile = model.InputFile;
-				OutputSortedWords = model.WordOccurances;
+				InputFile = _model.InputFile;
+				OutputSortedWords = _model.WordOccurances;
 
 			}
 			catch (OperationCanceledException)
 			{
-				// The operation was cancelled					
+				// The operation was cancelled
 				ProgressLevel = "Cancelled";
 			}
 			finally
 			{
-				// Re-enable the Analyze button
 				SelectFileBtnEnabled = true;
-				//ProgressLevel = "100%";
+				ProgressValue = 0;
 			}
 		}
 
 
 		private bool CanCancel(object param)
 		{
-			return cancellationTokenSource == null ? false : true;
+			return _cancellationTokenSource == null ? false : true;
 			// return true;
 		}
 
 		private void Cancel(object param)
 		{
 			// Cancel the operation
-			cancellationTokenSource.Cancel();
+			_cancellationTokenSource?.Cancel();
 
 		}
 
@@ -208,26 +218,26 @@ namespace GLWordCount.ViewModel
 			}
 
 
-			public bool CanExecute(object parameter)
+			public bool CanExecute(object? parameter)
 			{
-				return _canExecute(parameter);
+				return _canExecute(parameter!);
 			}
 
-			public event EventHandler CanExecuteChanged
+			public event EventHandler? CanExecuteChanged
 			{
 				add => CommandManager.RequerySuggested += value;
 				remove => CommandManager.RequerySuggested -= value;
 			}
 
-			public void Execute(object parameter)
+			public void Execute(object? parameter)
 			{
-				_execute(parameter);
+				_execute(parameter!);
 			}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler? PropertyChanged;
 
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}

@@ -7,48 +7,26 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:GLWordCount.ViewModel"
     Title="GLWordCount"
-    Width="600"
+    Width="450"
     Height="450"
     d:DataContext="{d:DesignInstance Type=vm:MainVM,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
 
     <Window.Resources>
-        <Style x:Key="LstViewItemContainerStyle" TargetType="ListViewItem">
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="MinWidth" Value="180" />
-        </Style>
-        <Style x:Key="lblStyle" TargetType="Label">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="Blue" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-
-        </Style>
-        <Style x:Key="tboxStyle" TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="Blue" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-        </Style>
-
-        <Style x:Key="tblockStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="Blue" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid ShowGridLines="False">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -59,19 +37,19 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-
         <Button
             x:Name="selectFileBtn"
             Grid.Row="0"
             Grid.Column="0"
-            Width="100"
+            Width="120"
             Height="20"
-            Margin="0,8,0,0"
+            Margin="5,0,0,5"
             HorizontalAlignment="Left"
             Command="{Binding Path=CalculateCommand}"
             CommandParameter="{Binding ElementName=progressLabel}"
             Content="Select file ..."
-            IsEnabled="{Binding Path=SelectFileBtnEnabled}" />
+            IsEnabled="{Binding Path=SelectFileBtnEnabled}"
+            Style="{StaticResource btnStyle}" />
 
         <Button
             x:Name="calcCancelBtn"
@@ -79,11 +57,11 @@
             Grid.Column="1"
             Width="120"
             Height="20"
-            Margin="0,8,0,0"
+            Margin="5,0,0,5"
             HorizontalAlignment="Left"
             Command="{Binding CancelCommand}"
-            Content="Cancel calculation" />
-
+            Content="Cancel calculation"
+            Style="{StaticResource btnStyle}" />
 
         <Label
             Grid.Row="1"
@@ -91,38 +69,58 @@
             HorizontalAlignment="Left"
             Content="Calculation progress:"
             Style="{StaticResource lblStyle}" />
+
+        <ProgressBar
+            x:Name="progressBar"
+            Grid.Row="1"
+            Grid.Column="1"
+            Width="120"
+            Margin="5,5,0,5"
+            HorizontalAlignment="Left"
+            Background="{x:Static SystemColors.WindowBrush}"
+            BorderThickness="1"
+            Maximum="100"
+            Minimum="0"
+            Value="{Binding ProgressValue}" />
+
         <Label
             x:Name="progressLabel"
             Grid.Row="1"
-            Grid.Column="1"
+            Grid.Column="2"
             HorizontalAlignment="Left"
             Content="{Binding ProgressLevel}"
             Style="{StaticResource lblStyle}" />
+
         <Label
             Grid.Row="2"
             Grid.Column="0"
             Content="Input file:"
             Style="{StaticResource lblStyle}" />
+
         <TextBlock
             Grid.Row="2"
             Grid.Column="1"
+            Grid.ColumnSpan="3"
+            Margin="5,5,0,5"
             Style="{StaticResource tblockStyle}"
-            Text="{Binding InputFile}" />
+            Text="{Binding InputFile}"
+            TextWrapping="Wrap" />
 
         <DataGrid
             Grid.Row="3"
             Grid.Column="0"
-            Grid.ColumnSpan="2"
+            Grid.ColumnSpan="3"
             MaxHeight="300"
+            Margin="0,5,0,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             AutoGenerateColumns="False"
             BorderThickness="0"
+            ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
             ItemsSource="{Binding OutputSortedWords}"
             ScrollViewer.CanContentScroll="True"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.HorizontalScrollBarVisibility="Visible"
             ScrollViewer.VerticalScrollBarVisibility="Visible">
-
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="Auto"
@@ -131,9 +129,9 @@
                     Header="Word" />
                 <DataGridTextColumn
                     Width="auto"
-                    MinWidth="150"
+                    MinWidth="200"
                     Binding="{Binding Path=Occurance}"
-                    Header="Occurance" />
+                    Header="Occurrence" />
             </DataGrid.Columns>
         </DataGrid>
 
