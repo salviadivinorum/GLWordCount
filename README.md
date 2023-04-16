@@ -1,5 +1,5 @@
 # Word counter
-PS desktop utility to process text file and get all word occurences.
+PC desktop utility to process text file and get all word occurences.
 
 Source code:
 -------------
