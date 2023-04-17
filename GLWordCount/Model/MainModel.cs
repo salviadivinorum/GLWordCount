@@ -17,7 +17,7 @@ namespace GLWordCount.Model
 		public MainModel()
 		{
 			WordOccurances = new List<WordOccurance>();
-			InputSplitPattern = new[] { ' ', '\n', '\r' };
+			InputSplitPattern = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
 		}
 
 		public char[] InputSplitPattern { get; set; }
@@ -33,9 +33,11 @@ namespace GLWordCount.Model
 		{
 			try
 			{
-				OpenFileDialog openFileDialog = new OpenFileDialog();
-				openFileDialog.Filter = "Text Files|*.txt";
-				openFileDialog.Title = "Select a Text File";
+				OpenFileDialog openFileDialog = new OpenFileDialog
+				{
+					Filter = "Text Files|*.txt",
+					Title = "Select a Text File"
+				};
 
 				if (openFileDialog.ShowDialog() == true)
 				{

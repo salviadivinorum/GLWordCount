@@ -16,15 +16,17 @@ namespace WordProcessorTests
 		{
 			// Create a test file with some sample text
 			_testFilePath = Path.GetTempFileName();
-			File.WriteAllText(_testFilePath, "This is a test.\nThis is only a test.");
+			File.WriteAllText(_testFilePath, "This is a test.\nThis is		only a test.");
 
 			// Create substitute objects for the dependencies
 			_substituteProgress = Substitute.For<IProgress<double>>();
 			_substituteLineSplitter = Substitute.For<ILineSplitter>();
 
-			// Set up the substitute LineSplitter to split lines on spaces
+			var pattern = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
+
+			// Set up the substitute LineSplitter to split lines with white space pattern
 			_substituteLineSplitter.SplitLine(Arg.Any<string>())
-				.Returns(args => ((string)args[0]).Split(' '));
+				.Returns(args => ((string)args[0]).Split(pattern, StringSplitOptions.RemoveEmptyEntries));
 		}
 
 		[TearDown]
@@ -33,7 +35,7 @@ namespace WordProcessorTests
 			// Delete the test file
 			File.Delete(_testFilePath);
 		}
-	
+
 		[Test]
 		public void GetWords_ReturnsWordsInFile()
 		{
@@ -45,15 +47,7 @@ namespace WordProcessorTests
 
 			// Assert
 			Assert.That(words.Count, Is.EqualTo(9));
-			Assert.That(words[0], Is.EqualTo("This"));
-			Assert.That(words[1], Is.EqualTo("is"));
-			Assert.That(words[2], Is.EqualTo("a"));
-			Assert.That(words[3], Is.EqualTo("test."));
-			Assert.That(words[4], Is.EqualTo("This"));
-			Assert.That(words[5], Is.EqualTo("is"));
-			Assert.That(words[6], Is.EqualTo("only"));
-			Assert.That(words[7], Is.EqualTo("a"));
-			Assert.That(words[8], Is.EqualTo("test."));
+			Assert.That(words, Is.EqualTo(new List<string> { "This", "is", "a", "test.", "This", "is", "only", "a", "test." }));
 		}
 
 		[Test]
